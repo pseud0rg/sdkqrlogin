@@ -1,0 +1,21 @@
+{
+  "name": "@pseud0/web-login-browser",
+  "version": "0.1.0",
+  "description": "Framework-neutral browser controller for pseud0 QR login",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run",
+    "typecheck": "tsc -b --pretty false"
+  }
+}

@@ -1,0 +1,505 @@
+openapi: 3.1.0
+info:
+  title: pseud0 web login site integration API
+  version: 1.0.0
+  description: |
+    Framework-neutral contract implemented by websites integrating pseud0 QR
+    login. The website backend owns these endpoints. Matrix is used only
+    between pseud0 Android and the central relay.
+servers:
+  - url: https://{domain}
+    variables:
+      domain:
+        default: example.org
+tags:
+  - name: Metadata
+  - name: Browser
+  - name: Relay callbacks
+  - name: Relay client
+paths:
+  /.well-known/pseud0-web-login:
+    get:
+      tags: [Metadata]
+      operationId: getPseud0WebLoginMetadata
+      responses:
+        "200":
+          description: Signed site metadata
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              example: public, max-age=300
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteMetadata"
+        default:
+          $ref: "#/components/responses/Problem"
+  /pseud0/web-login/sessions:
+    post:
+      tags: [Browser]
+      operationId: createPseud0WebLogin
+      responses:
+        "201":
+          description: Relay-registered browser login
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              example: no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateLoginResponse"
+        "429":
+          $ref: "#/components/responses/Problem"
+        "503":
+          $ref: "#/components/responses/Problem"
+        default:
+          $ref: "#/components/responses/Problem"
+  /pseud0/web-login/sessions/{session}/status:
+    parameters:
+      - $ref: "#/components/parameters/Session"
+    post:
+      tags: [Browser]
+      operationId: getPseud0WebLoginStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BrowserSecret"
+      responses:
+        "200":
+          description: Public login status
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              example: no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginStatus"
+        "404":
+          description: Unknown request or invalid browser secret
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "429":
+          $ref: "#/components/responses/Problem"
+        default:
+          $ref: "#/components/responses/Problem"
+  /pseud0/web-login/sessions/{session}/complete:
+    parameters:
+      - $ref: "#/components/parameters/Session"
+    post:
+      tags: [Browser]
+      operationId: completePseud0WebLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BrowserSecret"
+      responses:
+        "204":
+          description: Authenticated; the website session cookie is set
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              example: __Host-session=opaque; Path=/; Secure; HttpOnly; SameSite=Lax
+            Cache-Control:
+              schema:
+                type: string
+              example: no-store
+        "404":
+          description: Unknown request or invalid browser secret
+        "409":
+          description: Request is not ready or was already consumed
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        default:
+          $ref: "#/components/responses/Problem"
+  /pseud0/web-login/sessions/{session}/cancel:
+    parameters:
+      - $ref: "#/components/parameters/Session"
+    post:
+      tags: [Browser]
+      operationId: cancelPseud0WebLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BrowserSecret"
+      responses:
+        "204":
+          description: Request cancelled or already terminal
+        "404":
+          description: Unknown request or invalid browser secret
+        default:
+          $ref: "#/components/responses/Problem"
+  /pseud0/web-login/assertions:
+    post:
+      tags: [Relay callbacks]
+      operationId: receivePseud0RelayAssertion
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            $ref: "#/components/schemas/OpaqueId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RelayAssertion"
+      responses:
+        "202":
+          description: Assertion accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelayCallbackResult"
+        "200":
+          description: Byte-identical idempotent retry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelayCallbackResult"
+        "409":
+          description: Replay or invalid state
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        default:
+          $ref: "#/components/responses/Problem"
+  /pseud0/web-login/revocations:
+    post:
+      tags: [Relay callbacks]
+      operationId: receivePseud0RelayRevocation
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            $ref: "#/components/schemas/OpaqueId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RelayRevocation"
+      responses:
+        "202":
+          description: Revocation accepted
+        "200":
+          description: Byte-identical idempotent retry
+        "409":
+          description: Replay
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/site-sessions:
+    post:
+      tags: [Relay client]
+      operationId: registerPseud0SiteSession
+      description: |
+        This operation is called by the website backend on the central relay,
+        not mounted by the website.
+      servers:
+        - url: https://relay.pseud0.org
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RelayRegistration"
+      responses:
+        "201":
+          description: Session registered by the relay
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [sessionId, status, expiresAt]
+                properties:
+                  sessionId:
+                    $ref: "#/components/schemas/SessionId"
+                  status:
+                    const: registered
+                  expiresAt:
+                    $ref: "#/components/schemas/EpochMillis"
+        "409":
+          description: Conflicting session or replay
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        default:
+          $ref: "#/components/responses/Problem"
+components:
+  parameters:
+    Session:
+      name: session
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/SessionId"
+  responses:
+    Problem:
+      description: Request failed
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+  schemas:
+    EpochMillis:
+      type: integer
+      format: int64
+      minimum: 0
+    SessionId:
+      type: string
+      pattern: "^[A-Za-z0-9_-]{16,128}$"
+    OpaqueId:
+      type: string
+      pattern: "^[A-Za-z0-9_-]{22,128}$"
+    Base64UrlSignature:
+      type: string
+      pattern: "^[A-Za-z0-9_-]{86}$"
+    SiteMetadata:
+      type: object
+      additionalProperties: false
+      required: [version, domain, displayName, publicKey, signature]
+      properties:
+        version:
+          const: 1
+        domain:
+          type: string
+          maxLength: 253
+          pattern: "^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$"
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        publicKey:
+          type: string
+          description: Raw 32-byte Ed25519 public key, unpadded base64url
+          pattern: "^[A-Za-z0-9_-]{43}$"
+        signature:
+          $ref: "#/components/schemas/Base64UrlSignature"
+    BrowserSecret:
+      type: object
+      additionalProperties: false
+      required: [browser_secret]
+      properties:
+        browser_secret:
+          $ref: "#/components/schemas/OpaqueId"
+    CreateLoginResponse:
+      type: object
+      additionalProperties: false
+      required: [session, browser_secret, exp, qr]
+      properties:
+        session:
+          $ref: "#/components/schemas/SessionId"
+        browser_secret:
+          $ref: "#/components/schemas/OpaqueId"
+        exp:
+          $ref: "#/components/schemas/EpochMillis"
+        qr:
+          type: string
+          maxLength: 2048
+          pattern: "^pseud0://web-login\\?"
+    LoginStatus:
+      type: object
+      additionalProperties: false
+      required: [session, status, exp]
+      properties:
+        session:
+          $ref: "#/components/schemas/SessionId"
+        status:
+          enum: [pending, ready, denied, expired, cancelled, consumed]
+        exp:
+          $ref: "#/components/schemas/EpochMillis"
+    RelayRegistration:
+      type: object
+      additionalProperties: false
+      required:
+        - version
+        - domain
+        - sessionId
+        - nonce
+        - iat
+        - exp
+        - requestedDisplayName
+        - qrSignature
+        - registrationSignature
+      properties:
+        version:
+          const: 1
+        domain:
+          type: string
+          maxLength: 253
+        sessionId:
+          $ref: "#/components/schemas/SessionId"
+        nonce:
+          $ref: "#/components/schemas/OpaqueId"
+        iat:
+          $ref: "#/components/schemas/EpochMillis"
+        exp:
+          $ref: "#/components/schemas/EpochMillis"
+        requestedDisplayName:
+          type: string
+          maxLength: 100
+          description: Must be empty for the Android v1 profile
+        qrSignature:
+          $ref: "#/components/schemas/Base64UrlSignature"
+        registrationSignature:
+          $ref: "#/components/schemas/Base64UrlSignature"
+    RelayAssertion:
+      type: object
+      additionalProperties: false
+      required:
+        - version
+        - iss
+        - aud
+        - sub
+        - sessionId
+        - nonce
+        - jti
+        - iat
+        - nbf
+        - exp
+        - displayName
+        - subjectKeyVersion
+        - kid
+        - signature
+      properties:
+        version:
+          const: 1
+        iss:
+          const: https://relay.pseud0.org
+        aud:
+          type: string
+          maxLength: 253
+        sub:
+          type: string
+          pattern: "^[A-Za-z0-9_-]{43}$"
+        sessionId:
+          $ref: "#/components/schemas/SessionId"
+        nonce:
+          $ref: "#/components/schemas/OpaqueId"
+        jti:
+          $ref: "#/components/schemas/OpaqueId"
+        iat:
+          $ref: "#/components/schemas/EpochMillis"
+        nbf:
+          $ref: "#/components/schemas/EpochMillis"
+        exp:
+          $ref: "#/components/schemas/EpochMillis"
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        subjectKeyVersion:
+          type: integer
+          minimum: 1
+        kid:
+          type: string
+          pattern: "^[A-Za-z0-9._-]{1,64}$"
+        signature:
+          $ref: "#/components/schemas/Base64UrlSignature"
+    RelayRevocation:
+      type: object
+      additionalProperties: false
+      required:
+        - version
+        - iss
+        - aud
+        - sub
+        - jti
+        - iat
+        - exp
+        - reason
+        - kid
+        - signature
+      properties:
+        version:
+          const: 1
+        iss:
+          const: https://relay.pseud0.org
+        aud:
+          type: string
+          maxLength: 253
+        sub:
+          type: string
+          pattern: "^[A-Za-z0-9_-]{43}$"
+        jti:
+          $ref: "#/components/schemas/OpaqueId"
+        iat:
+          $ref: "#/components/schemas/EpochMillis"
+        exp:
+          $ref: "#/components/schemas/EpochMillis"
+        reason:
+          type: string
+          maxLength: 100
+        kid:
+          type: string
+          pattern: "^[A-Za-z0-9._-]{1,64}$"
+        signature:
+          $ref: "#/components/schemas/Base64UrlSignature"
+    RelayCallbackResult:
+      type: object
+      additionalProperties: false
+      required: [sessionId, status, receivedAt]
+      properties:
+        sessionId:
+          $ref: "#/components/schemas/SessionId"
+        status:
+          enum: [accepted, already_accepted]
+        receivedAt:
+          $ref: "#/components/schemas/EpochMillis"
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, code, retryable]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        code:
+          type: string
+          enum:
+            - invalid_request
+            - invalid_signature
+            - domain_verification_failed
+            - request_not_found
+            - request_expired
+            - request_denied
+            - request_already_used
+            - assertion_replayed
+            - audience_mismatch
+            - rate_limited
+            - relay_unavailable
+            - internal_error
+        retryable:
+          type: boolean
+        correlation_id:
+          type: string

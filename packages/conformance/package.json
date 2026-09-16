@@ -1,0 +1,33 @@
+{
+  "name": "@pseud0/web-login-conformance",
+  "version": "0.1.0",
+  "description": "Reusable Vitest contracts for pseud0 web-login implementations",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "import": "./dist/testing.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@pseud0/web-login-core": "0.1.0",
+    "@pseud0/web-login-node": "0.1.0"
+  },
+  "peerDependencies": {
+    "vitest": ">=3.2.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run"
+  }
+}

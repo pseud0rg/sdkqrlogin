@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/node" },
+    { "path": "./packages/browser" },
+    { "path": "./packages/adapter-next" },
+    { "path": "./packages/adapter-express" },
+    { "path": "./packages/adapter-fastify" },
+    { "path": "./packages/conformance" }
+  ]
+}

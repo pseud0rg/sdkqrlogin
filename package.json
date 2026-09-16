@@ -1,0 +1,26 @@
+{
+  "name": "pseud0-web-login-js",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@11.6.0",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "tsc -b --clean",
+    "test": "vitest run",
+    "typecheck": "tsc -b --pretty false",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "pack:check": "npm pack --dry-run --workspace @pseud0/web-login-core --workspace @pseud0/web-login-node --workspace @pseud0/web-login-browser --workspace @pseud0/web-login-adapter-next --workspace @pseud0/web-login-adapter-express --workspace @pseud0/web-login-adapter-fastify --workspace @pseud0/web-login-conformance"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "vitest": "^5.0.1"
+  }
+}

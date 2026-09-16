@@ -1,0 +1,60 @@
+{
+  "notice": "PUBLIC SYNTHETIC TEST DATA ONLY. Contains no production secret or user identifier.",
+  "algorithm": "Ed25519",
+  "publicKey": "A6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+  "metadata": {
+    "version": 1,
+    "domain": "login.example.org",
+    "displayName": "Conformance Test Site",
+    "publicKey": "A6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+    "signature": "dMN-p5yiEOI3P4yLugB5iFtjLWil5IaAyqglmlQ2hxBeB-Jb0BxBZCgHPFVYDHAPEY4NpmG9bwdQfnJcAXauAw"
+  },
+  "qr": {
+    "v": 1,
+    "domain": "login.example.org",
+    "session": "test_session_00000000000001",
+    "nonce": "test_nonce_0000000000000001",
+    "iat": 1800000000000,
+    "exp": 1800000300000,
+    "sig": "jsBT1_9MxcfWTCKFkniEWgqGr0BW7LXdR1e-eXMr_PDy8Kq9S3eFBCdLfkPFSncXxAvj--n6hSvlDyY5Qb0TBw"
+  },
+  "registration": {
+    "version": 1,
+    "domain": "login.example.org",
+    "sessionId": "test_session_00000000000001",
+    "nonce": "test_nonce_0000000000000001",
+    "iat": 1800000000000,
+    "exp": 1800000300000,
+    "requestedDisplayName": "",
+    "qrSignature": "jsBT1_9MxcfWTCKFkniEWgqGr0BW7LXdR1e-eXMr_PDy8Kq9S3eFBCdLfkPFSncXxAvj--n6hSvlDyY5Qb0TBw",
+    "registrationSignature": "xn_kfy3qYsQfqonTVzZZ8rUAisHLIzelM7vdEtVF1vkhv_B9ESfSNwXtGnvplwzGH1w1P4p-xnvQyKkPoc3ECg"
+  },
+  "assertion": {
+    "version": 1,
+    "iss": "https://relay.pseud0.org",
+    "aud": "login.example.org",
+    "sub": "QkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkI",
+    "sessionId": "test_session_00000000000001",
+    "nonce": "test_nonce_0000000000000001",
+    "jti": "JCQkJCQkJCQkJCQkJCQkJCQkJCQ",
+    "iat": 1800000001000,
+    "nbf": 1800000001000,
+    "exp": 1800000300000,
+    "displayName": "Test User",
+    "subjectKeyVersion": 1,
+    "kid": "test-relay-1",
+    "signature": "UNlaTGoV1jH_bvkHJxhGOntCL6KQz4nwBYe3c3relbbQsDZluR1H6SUoiVjz9gHbRjmnpQgV6TCOx9BNWTEWAA"
+  },
+  "revocation": {
+    "version": 1,
+    "iss": "https://relay.pseud0.org",
+    "aud": "login.example.org",
+    "sub": "QkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkI",
+    "jti": "JSUlJSUlJSUlJSUlJSUlJSUlJSU",
+    "iat": 1800000002000,
+    "exp": 1800000300000,
+    "reason": "user_requested",
+    "kid": "test-relay-1",
+    "signature": "LTyo4sEfxDdoqDH1mDBLirs_mTxdrB71iGD8TfeuR_ZOtaQITwKxIueGIcu4H_LobUNsZKObMRHn-HWTseG9Bg"
+  }
+}

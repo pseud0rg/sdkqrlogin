@@ -1,0 +1,6 @@
+PUBLIC SYNTHETIC TEST DATA ONLY — NO PRODUCTION SECRET OR USER IDENTIFIER
+metadata	{"displayName":"Conformance Test Site","domain":"login.example.org","publicKey":"A6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg","version":1}
+qr	{"domain":"login.example.org","exp":1800000300000,"iat":1800000000000,"nonce":"test_nonce_0000000000000001","session":"test_session_00000000000001","v":1}
+registration	{"domain":"login.example.org","exp":1800000300000,"iat":1800000000000,"nonce":"test_nonce_0000000000000001","qrSignature":"jsBT1_9MxcfWTCKFkniEWgqGr0BW7LXdR1e-eXMr_PDy8Kq9S3eFBCdLfkPFSncXxAvj--n6hSvlDyY5Qb0TBw","requestedDisplayName":"","sessionId":"test_session_00000000000001","version":1}
+assertion	{"aud":"login.example.org","displayName":"Test User","exp":1800000300000,"iat":1800000001000,"iss":"https://relay.pseud0.org","jti":"JCQkJCQkJCQkJCQkJCQkJCQkJCQ","kid":"test-relay-1","nbf":1800000001000,"nonce":"test_nonce_0000000000000001","sessionId":"test_session_00000000000001","sub":"QkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkI","subjectKeyVersion":1,"version":1}
+revocation	{"aud":"login.example.org","exp":1800000300000,"iat":1800000002000,"iss":"https://relay.pseud0.org","jti":"JSUlJSUlJSUlJSUlJSUlJSUlJSU","kid":"test-relay-1","reason":"user_requested","sub":"QkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkI","version":1}
